@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FD001 健康分析</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>FD001 引擎健康分析</h1>
+    <p class="sub">NASA C-MAPSS FD001 · 航空渦輪扇發動機<strong>模擬</strong>劣化資料 · 不是發電機實測資料 · 不做故障診斷</p>
+  </div>
+  <div id="health" class="pill">API 檢查中…</div>
+</header>
+
+<div id="error" class="error" role="alert" hidden></div>
+
+<main>
+  <section class="controls card" aria-label="選擇條件">
+    <label>資料集
+      <select id="split">
+        <option value="train">train（完整歷程至模擬失效）</option>
+        <option value="test">test（截斷歷程，RUL 另檔）</option>
+      </select>
+    </label>
+    <label>Engine Unit（1–100）
+      <input id="unit" type="number" min="1" max="100" step="1" value="1">
+    </label>
+    <label>Cycle 起
+      <input id="start" type="number" min="1" step="1" value="1">
+    </label>
+    <label>Cycle 迄
+      <input id="end" type="number" min="1" step="1" placeholder="最後">
+    </label>
+    <label class="wide">主要 Sensor
+      <select id="sensor"></select>
+    </label>
+    <button id="load" class="primary">查詢</button>
+    <div class="compare wide">
+      <span>多通道比較：</span>
+      <div id="compare" class="chips"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row-head">
+      <h2 id="chartTitle">趨勢</h2>
+      <div id="unitInfo" class="muted"></div>
+    </div>
+    <div id="charts"></div>
+    <p class="legend">
+      <span class="sw raw"></span>原始值　<span class="sw roll"></span>10-Cycle 滾動平均
+      <span class="sw band"></span>早期參考 ±3σ（Cycle 1–30）　<span class="sw cand"></span>偏移候選（教學啟發式，<b>非</b>故障起始標籤）
+    </p>
+    <p class="muted small">滑鼠移到圖上看數值；點擊資料點可在下方檢視該 Cycle 的原始文字行。</p>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>摘要（整台引擎歷程）</h2>
+      <div id="summary"></div>
+    </div>
+    <div class="card">
+      <h2>來源檢視</h2>
+      <div id="source"><p class="muted">點擊圖上的資料點或下表的列。</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row-head">
+      <h2>Evidence Prompt</h2>
+      <div>
+        <button id="copy" class="primary">複製 Prompt</button>
+        <span id="copied" class="muted" hidden>已複製</span>
+      </div>
+    </div>
+    <p class="muted small">依目前選取的 Engine／Cycle／Sensor 產生。網站不內建 LLM；請貼到外部 Chat AI。</p>
+    <textarea id="prompt" readonly rows="16"></textarea>
+  </section>
+
+  <section class="card">
+    <div class="row-head">
+      <h2>來源資料列</h2>
+      <span id="rowCount" class="muted"></span>
+    </div>
+    <div class="table-wrap"><table id="table"></table></div>
+  </section>
+</main>
+
+<footer class="muted small">
+  資料：NASA PCoE Turbofan Engine Degradation Simulation Data Set（FD001）。欄位名稱與單位：Saxena et al. (2008) Table 2。
+  圖表與數值皆由本機唯讀 API（<code>/api/*</code>）即時提供。
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
